@@ -136,11 +136,13 @@ parts you choose under it.
 - **Station map:** FMI's stations on a map of Finland, coloured by their R-index against their own lower limit. The
   replay button plays the night from noon, so you can see how the activity moved.
 - **The night's timeline:** the activity over the place against the lower limit, from noon to eight the next morning,
-  with the dark hours shaded. Before noon it shows the night just gone. Tonight's cloud cover and Kp's peak can be
-  drawn on it too. Moving over it shows the activity at that moment, and the map's stations too when the map is on.
+  with the dark hours shaded and the lower limit as a dashed line at 1. Before noon it shows the night just gone. The
+  night's cloud cover and Kp's peak can be drawn on it too. Moving over it shows the activity at that moment, and the
+  map's stations too when the map is on.
 
 The timeline comes from the visibility sensor's history in Home Assistant's recorder, and the map's replay from the
-stations' R-index sensors, so both fill in from the moment the integration is set up.
+stations' R-index sensors, so both fill in from the moment the integration is set up. The hours gone by in the cloud
+cover come from the clouds sensor's history. Each is the last forecast made for that hour, not an observation.
 
 The integration serves the card itself and adds it to the dashboards' resources when it starts, so the card is always
 the integration's own version. With the resources set in YAML (`resource_mode: yaml`), it can't add or update

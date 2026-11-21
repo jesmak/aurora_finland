@@ -52,6 +52,8 @@ interface History {
     stations: Record<string, Point[]>;
     /** The dark hours the visibility sensor gave through the window. */
     nights: Night[];
+    /** The clouds sensor's states through the window, for the hours its forecast has dropped. */
+    clouds: HistoryRow[];
 }
 
 export class AuroraFinlandCard extends LitElement {
@@ -406,7 +408,7 @@ export class AuroraFinlandCard extends LitElement {
         }
         if (cloudsShown && sensors.clouds) {
             const slot = (HOUR_MS / (window.end - window.start)) * inner.width;
-            for (const hour of cloudHours(this.hass!.states[sensors.clouds])) {
+            for (const hour of cloudHours(this.history?.clouds, this.hass!.states[sensors.clouds])) {
                 if (hour.at < window.start || hour.at >= window.end) {
                     continue;
                 }
@@ -482,6 +484,7 @@ export class AuroraFinlandCard extends LitElement {
             </svg>
             <div class="legend">
                 <span><i class="swatch activity"></i>${this.text("timeline.activity")}</span>
+                <span><i class="swatch limit"></i>${this.text("timeline.limit")}</span>
                 ${cloudsShown && sensors.clouds ? html`<span><i class="swatch cloud"></i>${this.text("timeline.clouds")}</span>` : nothing}
                 ${kpShown && sensors.kp ? html`<span><i class="swatch kp"></i>${this.text("timeline.kp")}</span>` : nothing}
             </div>`;
@@ -544,18 +547,19 @@ export class AuroraFinlandCard extends LitElement {
         const window = nightWindow(Date.now(), this.timeZone());
         const sensors = this.sensors();
         const stations = shows(this.config, "show_map") ? sensors.stations.map((station) => station.entity) : [];
-        const key = `${window.start}|${this.config.entity}|${stations.join(",")}`;
+        const clouds = shows(this.config, "show_timeline") && shows(this.config, "show_clouds") ? sensors.clouds : undefined;
+        const key = `${window.start}|${this.config.entity}|${clouds}|${stations.join(",")}`;
         if (this.history?.key === key) {
             return;
         }
-        this.history = { key, ratio: [], stations: {}, nights: [] };
+        this.history = { key, ratio: [], stations: {}, nights: [], clouds: [] };
         const start = new Date(window.start).toISOString();
         const visibility = this.config.entity;
         const read = <T>(message: Record<string, unknown>) =>
             hass.callWS!<T>({ type: "history/history_during_period", start_time: start, ...message });
         Promise.all([
             read<Record<string, HistoryRow[]>>({
-                entity_ids: [visibility],
+                entity_ids: clouds ? [visibility, clouds] : [visibility],
                 minimal_response: false,
                 no_attributes: false,
                 significant_changes_only: false,
@@ -577,6 +581,7 @@ export class AuroraFinlandCard extends LitElement {
                     key,
                     ratio: ratioSeries(ratio[visibility], this.hass?.states[visibility]),
                     nights: nightsSeen(ratio[visibility], this.hass?.states[visibility]),
+                    clouds: clouds ? (ratio[clouds] ?? []) : [],
                     stations: Object.fromEntries(
                         stations.map((entity) => [entity, stateSeries(states[entity], this.hass?.states[entity])]),
                     ),
@@ -1016,6 +1021,11 @@ export class AuroraFinlandCard extends LitElement {
             }
             .swatch.activity {
                 background: var(--aurora-likely);
+            }
+            .swatch.limit {
+                width: 12px;
+                background: repeating-linear-gradient(90deg, var(--aurora-likely) 0 3px, transparent 3px 6px);
+                opacity: 0.7;
             }
             .swatch.cloud {
                 width: 8px;

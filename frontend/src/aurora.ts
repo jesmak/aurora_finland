@@ -195,18 +195,24 @@ export interface CloudHour {
     cover: number;
 }
 
-/** Tonight's cloud cover hour by hour, from the clouds sensor's `hours`. */
-export function cloudHours(entity: HassEntity | undefined): CloudHour[] {
-    const hours = entity?.attributes.hours;
-    if (!Array.isArray(hours)) {
-        return [];
+/**
+ * The night's cloud cover hour by hour, from the clouds sensor's `hours` in its history and now. Each update starts
+ * from the current hour and drops the hours gone by, so those come from the history, each with the last forecast made
+ * for it.
+ */
+export function cloudHours(rows: HistoryRow[] | undefined, current: HassEntity | undefined): CloudHour[] {
+    const cover = new Map<number, number>();
+    for (const hours of [...(rows ?? []).map((row) => row.a?.hours), current?.attributes.hours]) {
+        for (const hour of Array.isArray(hours) ? hours : []) {
+            const item = hour as Record<string, unknown> | null;
+            const at = time(item?.time);
+            const value = number(item?.cloud_coverage);
+            if (at !== undefined && value !== undefined) {
+                cover.set(at, value);
+            }
+        }
     }
-    return hours.flatMap((hour: unknown) => {
-        const item = hour as Record<string, unknown> | null;
-        const at = time(item?.time);
-        const cover = number(item?.cloud_coverage);
-        return at === undefined || cover === undefined ? [] : [{ at, cover }];
-    });
+    return [...cover].map(([at, value]) => ({ at, cover: value })).sort((a, b) => a.at - b.at);
 }
 
 /** How far a time zone's clock is ahead of UTC at a moment, in milliseconds. */

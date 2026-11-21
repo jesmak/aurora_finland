@@ -43,6 +43,7 @@
         "title": "Aktiivisuus alarajaan verrattuna",
         "at": "klo {time} · {percent} %",
         "activity": "aktiivisuus / alaraja",
+        "limit": "alaraja",
         "clouds": "pilvipeite",
         "kp": "Kp-huippu",
         "play": "Toista yö",

@@ -11,6 +11,7 @@ import {
     valueAt,
     visibilitySensors,
 } from "../src/aurora";
+import type { HistoryRow } from "../src/aurora";
 import type { HassEntity, HomeAssistant } from "../src/hass";
 
 function entity(
@@ -232,6 +233,17 @@ describe("cloudHours", () => {
                 null,
             ],
         });
-        expect(cloudHours(clouds)).toEqual([{ at: Date.parse("2026-01-15T16:00:00Z"), cover: 40 }]);
+        expect(cloudHours(undefined, clouds)).toEqual([{ at: Date.parse("2026-01-15T16:00:00Z"), cover: 40 }]);
+    });
+
+    it("keeps the hours gone by from the history, each with its last forecast", () => {
+        const hour = (at: string, cover: number) => ({ time: `2026-01-15T${at}:00+00:00`, cloud_coverage: cover });
+        const rows = [
+            { s: "60", lu: 0, a: { hours: [hour("16:00", 80), hour("17:00", 60), hour("18:00", 40)] } },
+            { s: "45", lu: 0, a: { hours: [hour("17:00", 50), hour("18:00", 40)] } },
+            { s: "30" },
+        ] as HistoryRow[];
+        const now = entity("sensor.c", "30", { hours: [hour("18:00", 30)] });
+        expect(cloudHours(rows, now).map((item) => item.cover)).toEqual([80, 50, 30]);
     });
 });

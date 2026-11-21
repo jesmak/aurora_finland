@@ -43,6 +43,7 @@
         "title": "Activity against the lower limit",
         "at": "{time} · {percent} %",
         "activity": "activity / lower limit",
+        "limit": "lower limit",
         "clouds": "cloud cover",
         "kp": "Kp's peak",
         "play": "Replay the night",

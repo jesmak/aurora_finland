@@ -712,17 +712,19 @@ function valueAt(points, at) {
   }
   return found;
 }
-function cloudHours(entity) {
-  const hours = entity?.attributes.hours;
-  if (!Array.isArray(hours)) {
-    return [];
+function cloudHours(rows, current) {
+  const cover = /* @__PURE__ */ new Map();
+  for (const hours of [...(rows ?? []).map((row) => row.a?.hours), current?.attributes.hours]) {
+    for (const hour of Array.isArray(hours) ? hours : []) {
+      const item = hour;
+      const at = time(item?.time);
+      const value = number(item?.cloud_coverage);
+      if (at !== void 0 && value !== void 0) {
+        cover.set(at, value);
+      }
+    }
   }
-  return hours.flatMap((hour) => {
-    const item = hour;
-    const at = time(item?.time);
-    const cover = number(item?.cloud_coverage);
-    return at === void 0 || cover === void 0 ? [] : [{ at, cover }];
-  });
+  return [...cover].map(([at, value]) => ({ at, cover: value })).sort((a3, b3) => a3.at - b3.at);
 }
 function offset(at, timeZone) {
   const { year, month, day, hour, minute, second } = clock(at, timeZone);
@@ -796,6 +798,7 @@ var en_default = {
     title: "Activity against the lower limit",
     at: "{time} \xB7 {percent} %",
     activity: "activity / lower limit",
+    limit: "lower limit",
     clouds: "cloud cover",
     kp: "Kp's peak",
     play: "Replay the night",
@@ -870,6 +873,7 @@ var fi_default = {
     title: "Aktiivisuus alarajaan verrattuna",
     at: "klo {time} \xB7 {percent} %",
     activity: "aktiivisuus / alaraja",
+    limit: "alaraja",
     clouds: "pilvipeite",
     kp: "Kp-huippu",
     play: "Toista y\xF6",
@@ -1550,7 +1554,7 @@ var AuroraFinlandCard = class extends i4 {
     }
     if (cloudsShown && sensors.clouds) {
       const slot = HOUR_MS / (window2.end - window2.start) * inner.width;
-      for (const hour of cloudHours(this.hass.states[sensors.clouds])) {
+      for (const hour of cloudHours(this.history?.clouds, this.hass.states[sensors.clouds])) {
         if (hour.at < window2.start || hour.at >= window2.end) {
           continue;
         }
@@ -1620,6 +1624,7 @@ var AuroraFinlandCard = class extends i4 {
             </svg>
             <div class="legend">
                 <span><i class="swatch activity"></i>${this.text("timeline.activity")}</span>
+                <span><i class="swatch limit"></i>${this.text("timeline.limit")}</span>
                 ${cloudsShown && sensors.clouds ? b2`<span><i class="swatch cloud"></i>${this.text("timeline.clouds")}</span>` : A}
                 ${kpShown && sensors.kp ? b2`<span><i class="swatch kp"></i>${this.text("timeline.kp")}</span>` : A}
             </div>`;
@@ -1676,17 +1681,18 @@ var AuroraFinlandCard = class extends i4 {
     const window2 = nightWindow(Date.now(), this.timeZone());
     const sensors = this.sensors();
     const stations = shows(this.config, "show_map") ? sensors.stations.map((station) => station.entity) : [];
-    const key = `${window2.start}|${this.config.entity}|${stations.join(",")}`;
+    const clouds = shows(this.config, "show_timeline") && shows(this.config, "show_clouds") ? sensors.clouds : void 0;
+    const key = `${window2.start}|${this.config.entity}|${clouds}|${stations.join(",")}`;
     if (this.history?.key === key) {
       return;
     }
-    this.history = { key, ratio: [], stations: {}, nights: [] };
+    this.history = { key, ratio: [], stations: {}, nights: [], clouds: [] };
     const start = new Date(window2.start).toISOString();
     const visibility = this.config.entity;
     const read2 = (message) => hass.callWS({ type: "history/history_during_period", start_time: start, ...message });
     Promise.all([
       read2({
-        entity_ids: [visibility],
+        entity_ids: clouds ? [visibility, clouds] : [visibility],
         minimal_response: false,
         no_attributes: false,
         significant_changes_only: false
@@ -1706,6 +1712,7 @@ var AuroraFinlandCard = class extends i4 {
           key,
           ratio: ratioSeries(ratio[visibility], this.hass?.states[visibility]),
           nights: nightsSeen(ratio[visibility], this.hass?.states[visibility]),
+          clouds: clouds ? ratio[clouds] ?? [] : [],
           stations: Object.fromEntries(
             stations.map((entity) => [entity, stateSeries(states[entity], this.hass?.states[entity])])
           )
@@ -2123,6 +2130,11 @@ var AuroraFinlandCard = class extends i4 {
             }
             .swatch.activity {
                 background: var(--aurora-likely);
+            }
+            .swatch.limit {
+                width: 12px;
+                background: repeating-linear-gradient(90deg, var(--aurora-likely) 0 3px, transparent 3px 6px);
+                opacity: 0.7;
             }
             .swatch.cloud {
                 width: 8px;
