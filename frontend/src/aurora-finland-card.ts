@@ -158,7 +158,7 @@ export class AuroraFinlandCard extends LitElement {
         const tonight = shows(this.config, "show_tonight");
         const timeline = shows(this.config, "show_timeline");
         return html`
-            <ha-card style=${this.cardStyle()}>
+            <ha-card class=${this.hass.themes?.darkMode ? "dark-theme" : ""} style=${this.cardStyle()}>
                 <div class="content">
                     <div class="part">${this.header(level)}</div>
                     ${tonight && !map ? this.boxes(sensors) : nothing}
@@ -943,7 +943,12 @@ export class AuroraFinlandCard extends LitElement {
                 touch-action: pan-y;
                 cursor: crosshair;
             }
+            /* A shade darker than the card in a dark theme, and a faint grey in a light one, where black would swamp it. */
             .timeline .night {
+                fill: var(--primary-text-color);
+                opacity: 0.06;
+            }
+            .dark-theme .timeline .night {
                 fill: color-mix(in srgb, var(--primary-background-color) 55%, black);
                 opacity: 0.6;
             }
