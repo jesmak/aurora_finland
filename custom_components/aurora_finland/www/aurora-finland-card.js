@@ -2039,7 +2039,9 @@ var AuroraFinlandCard = class extends i4 {
                 align-items: center;
                 font-variant-numeric: tabular-nums;
             }
+            /* HA renamed the button's size variable when it left mwc. Both are set, so older versions keep the size too. */
             .play {
+                --ha-icon-button-size: 32px;
                 --mdc-icon-button-size: 32px;
                 --mdc-icon-size: 22px;
                 color: var(--state-icon-color);
