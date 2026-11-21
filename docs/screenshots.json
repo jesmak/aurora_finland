@@ -293,31 +293,11 @@
       }
     },
     "sensor.kuopio_clouds_tonight": {
-      "state": "33",
+      "state": "27",
       "attributes": {
         "least": 5,
         "clearest": "2026-01-15T23:00:00+00:00",
         "hours": [
-          {
-            "time": "2026-01-15T15:00:00+00:00",
-            "cloud_coverage": 70
-          },
-          {
-            "time": "2026-01-15T16:00:00+00:00",
-            "cloud_coverage": 55
-          },
-          {
-            "time": "2026-01-15T17:00:00+00:00",
-            "cloud_coverage": 40
-          },
-          {
-            "time": "2026-01-15T18:00:00+00:00",
-            "cloud_coverage": 30
-          },
-          {
-            "time": "2026-01-15T19:00:00+00:00",
-            "cloud_coverage": 22
-          },
           {
             "time": "2026-01-15T20:00:00+00:00",
             "cloud_coverage": 15
@@ -2065,6 +2045,700 @@
                 "next_hour": 182.4
               },
               "lu": 1768509000
+            }
+          ],
+          "sensor.kuopio_clouds_tonight": [
+            {
+              "lu": 1768489200,
+              "s": "33",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T15:00:00+00:00",
+                    "cloud_coverage": 70
+                  },
+                  {
+                    "time": "2026-01-15T16:00:00+00:00",
+                    "cloud_coverage": 55
+                  },
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768491000,
+              "s": "33",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T15:00:00+00:00",
+                    "cloud_coverage": 70
+                  },
+                  {
+                    "time": "2026-01-15T16:00:00+00:00",
+                    "cloud_coverage": 55
+                  },
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768492800,
+              "s": "30",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T16:00:00+00:00",
+                    "cloud_coverage": 55
+                  },
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768494600,
+              "s": "30",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T16:00:00+00:00",
+                    "cloud_coverage": 55
+                  },
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768496400,
+              "s": "28",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768498200,
+              "s": "28",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T17:00:00+00:00",
+                    "cloud_coverage": 40
+                  },
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768500000,
+              "s": "27",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768501800,
+              "s": "27",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T18:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768503600,
+              "s": "27",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768505400,
+              "s": "27",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T19:00:00+00:00",
+                    "cloud_coverage": 22
+                  },
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
+            },
+            {
+              "lu": 1768507200,
+              "s": "27",
+              "a": {
+                "least": 5,
+                "clearest": "2026-01-15T23:00:00+00:00",
+                "hours": [
+                  {
+                    "time": "2026-01-15T20:00:00+00:00",
+                    "cloud_coverage": 15
+                  },
+                  {
+                    "time": "2026-01-15T21:00:00+00:00",
+                    "cloud_coverage": 10
+                  },
+                  {
+                    "time": "2026-01-15T22:00:00+00:00",
+                    "cloud_coverage": 8
+                  },
+                  {
+                    "time": "2026-01-15T23:00:00+00:00",
+                    "cloud_coverage": 5
+                  },
+                  {
+                    "time": "2026-01-16T00:00:00+00:00",
+                    "cloud_coverage": 9
+                  },
+                  {
+                    "time": "2026-01-16T01:00:00+00:00",
+                    "cloud_coverage": 18
+                  },
+                  {
+                    "time": "2026-01-16T02:00:00+00:00",
+                    "cloud_coverage": 30
+                  },
+                  {
+                    "time": "2026-01-16T03:00:00+00:00",
+                    "cloud_coverage": 45
+                  },
+                  {
+                    "time": "2026-01-16T04:00:00+00:00",
+                    "cloud_coverage": 60
+                  },
+                  {
+                    "time": "2026-01-16T05:00:00+00:00",
+                    "cloud_coverage": 72
+                  }
+                ],
+                "unit_of_measurement": "%",
+                "friendly_name": "Kuopio Clouds tonight"
+              }
             }
           ]
         }
