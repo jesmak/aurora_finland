@@ -7,6 +7,10 @@
         "invalid_row_step": "Virheellinen pyöristys. Pyöristyksen (row_step) on oltava full tai half.",
         "unavailable": "Näkyvyysarvio ei ole saatavilla"
     },
+    "header": {
+        "title": "Revontulet · {name}",
+        "title_alone": "Revontulet"
+    },
     "state": {
         "unlikely": "Epätodennäköistä",
         "possible": "Mahdollista",
@@ -50,7 +54,18 @@
         "pause": "Pysäytä"
     },
     "map": {
-        "station": "{name}: R-luku {value}, alaraja {lower}"
+        "station": "{name}: R-luku {value}, alaraja {lower}",
+        "place": "{name}: aktiivisuus {percent} % alarajasta"
+    },
+    "held": {
+        "at": "Tilanne klo {time}",
+        "now": "Nyt",
+        "no_data": "Ei tietoa"
+    },
+    "tip": {
+        "time": "klo {time}",
+        "activity": "Aktiivisuus {percent} % alarajasta",
+        "clouds": "Pilvipeite {percent} %"
     },
     "editor": {
         "entity": "Näkyvyysarvio",

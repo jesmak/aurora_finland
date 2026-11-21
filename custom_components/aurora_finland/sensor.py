@@ -13,7 +13,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
 from .const import ATTRIBUTION, DOMAIN
-from .coordinator import AuroraConfigEntry, Stations
+from .coordinator import AuroraConfigEntry, StationCoordinator, Stations
 from .estimate import LIKELY, POSSIBLE, UNLIKELY
 
 PARALLEL_UPDATES = 0
@@ -72,8 +72,12 @@ class _Sensor(CoordinatorEntity[DataUpdateCoordinator[Any]], SensorEntity):
 class VisibilitySensor(_Sensor):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = [UNLIKELY, POSSIBLE, LIKELY]
+    # The place doesn't change, so the recorder has no use for it.
+    _unrecorded_attributes = frozenset({"latitude", "longitude"})
 
-    def __init__(self, coordinator: DataUpdateCoordinator[Stations], device: DeviceInfo) -> None:
+    coordinator: StationCoordinator
+
+    def __init__(self, coordinator: StationCoordinator, device: DeviceInfo) -> None:
         super().__init__(coordinator, device, "visibility", f"{coordinator.config_entry.entry_id}_visibility")
 
     @property
@@ -99,6 +103,9 @@ class VisibilitySensor(_Sensor):
             "dark_start": start.isoformat() if start else None,
             "dark_end": end.isoformat() if end else None,
             "next_hour": self.coordinator.data.next_hour,
+            # The place, so the card can draw it among the stations.
+            "latitude": self.coordinator.latitude,
+            "longitude": self.coordinator.longitude,
         }
 
 

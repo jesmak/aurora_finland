@@ -7,6 +7,7 @@ import {
     nightsSeen,
     placeSensors,
     ratioSeries,
+    rowAt,
     stateSeries,
     valueAt,
     visibilitySensors,
@@ -220,6 +221,16 @@ describe("series", () => {
         expect(valueAt(points, 100)).toBe(1);
         expect(valueAt(points, 199)).toBe(1);
         expect(valueAt(points, 5000)).toBe(2);
+    });
+
+    it("gives the row in force at a moment, from the seconds the history gives", () => {
+        const rows = [
+            { s: "unlikely", lu: 100 },
+            { s: "likely", lu: 200 },
+        ];
+        expect(rowAt(rows, 99_999)).toBeUndefined();
+        expect(rowAt(rows, 150_000)?.s).toBe("unlikely");
+        expect(rowAt(rows, 200_000)?.s).toBe("likely");
     });
 });
 

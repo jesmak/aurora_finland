@@ -72,6 +72,7 @@ The visibility sensor's attributes:
 - `dark_start` and `dark_end`: the night going on now, or the next one, by that same darkness. Either is empty when
   the sun stays that low for more than three days, and both when no such night comes, as in the summer
 - `next_hour`: the highest RX FMI expects in the next hour at the stations around the place, weighed as for `ratio`
+- `latitude` and `longitude`: the place, for the card's map
 
 The night runs from civil dusk to dawn, or from now when it is already past dusk. The Kp sensor carries the three
 hours it is forecast for as `start` and `end`. Kp is NOAA's planetary index, the same for the whole earth, so it says
@@ -134,11 +135,14 @@ parts you choose under it.
 - **Tonight:** the night's cloud cover and its clearest hour, the highest Kp and when, and the most activity FMI expects
   in the next hour.
 - **Station map:** FMI's stations on a map of Finland, coloured by their R-index against their own lower limit. The
-  replay button plays the night from noon, so you can see how the activity moved.
+  replay button plays the night from noon, or on from a moment held or paused at, so you can see how the activity
+  moved.
 - **The night's timeline:** the activity over the place against the lower limit, from noon to eight the next morning,
   with the dark hours shaded and the lower limit as a dashed line at 1. Before noon it shows the night just gone. The
-  night's cloud cover and Kp's peak can be drawn on it too. Moving over it shows the activity at that moment, and the
-  map's stations too when the map is on.
+  night's cloud cover and Kp's peak can be drawn on it too. Moving over it shows the activity and the clouds at that
+  moment in a tooltip. Clicking it holds the whole card at that moment, the visibility, the sky and the map, until
+  you click Now, press Esc or click the hours still to come. While it is held, the map's stations show their readings
+  of that moment when you move over them. The place itself is on the map too.
 
 The timeline comes from the visibility sensor's history in Home Assistant's recorder, and the map's replay from the
 stations' R-index sensors, so both fill in from the moment the integration is set up. The hours gone by in the cloud

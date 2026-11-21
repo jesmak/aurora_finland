@@ -190,6 +190,18 @@ export function valueAt(points: Point[], at: number): number | undefined {
     return found;
 }
 
+/** The history row in force at a moment: the last one at or before it. Undefined before the first. */
+export function rowAt(rows: HistoryRow[], at: number): HistoryRow | undefined {
+    let found: HistoryRow | undefined;
+    for (const row of rows) {
+        if (row.lu * 1000 > at) {
+            break;
+        }
+        found = row;
+    }
+    return found;
+}
+
 export interface CloudHour {
     at: number;
     cover: number;

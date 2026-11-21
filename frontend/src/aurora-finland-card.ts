@@ -3,7 +3,8 @@
  *
  * A header line with the visibility and where to look, and the parts switched on in the editor: the sky drawn with where
  * to look, tonight's clouds and Kp, a map of the stations, and the night's activity from noon to eight in the morning.
- * Moving over the timeline, or replaying the night, shows the activity and the map at that moment.
+ * Moving over the timeline shows a moment in a tooltip. Clicking it, or replaying the night, holds the whole card at
+ * that moment, so the map's stations can be looked at as they were then.
  */
 import { LitElement, css, html, nothing, svg } from "lit";
 import type { CSSResultGroup, PropertyValues, SVGTemplateResult, TemplateResult } from "lit";
@@ -14,6 +15,7 @@ import {
     darkIn,
     nightWindow,
     nightsSeen,
+    rowAt,
     number,
     placeSensors,
     ratioSeries,
@@ -42,7 +44,9 @@ const PADDING = 16;
 /** A replay of the night takes about this long, however much of it has passed. */
 const REPLAY_MS = 4_000;
 const REPLAY_FRAME_MS = 50;
-const MAP_HEIGHT = 200;
+/** How long a tapped tooltip stays. */
+const TAP_TIP_MS = 3000;
+const MAP_HEIGHT = 192;
 const STATE_ICONS: Record<string, string> = { unlikely: "mdi:weather-night", possible: "mdi:aurora", likely: "mdi:aurora" };
 
 interface History {
@@ -54,6 +58,15 @@ interface History {
     nights: Night[];
     /** The clouds sensor's states through the window, for the hours its forecast has dropped. */
     clouds: HistoryRow[];
+    /** The visibility sensor's states through the window, for the header and the sky at a moment held. */
+    visibility: HistoryRow[];
+}
+
+interface Tip {
+    lines: string[];
+    /** Where the pointer is, from the card's top left corner. */
+    x: number;
+    y: number;
 }
 
 export class AuroraFinlandCard extends LitElement {
@@ -61,8 +74,12 @@ export class AuroraFinlandCard extends LitElement {
     @property({ attribute: false }) public layout?: string;
     @state() private config?: AuroraCardConfig;
     @state() private history?: History;
-    /** The moment shown while moving over the timeline or replaying the night. Unset, the card shows now. */
+    /** The moment the card is held at, by a click on the timeline or a replay. Unset, the card shows now. */
     @state() private cursor?: number;
+    @state() private tip?: Tip;
+    /** Where a mouse is over the timeline, for a line there. */
+    @state() private hovered?: number;
+    private tipTimer?: ReturnType<typeof setTimeout>;
     @state() private playing = false;
     @state() private width = 0;
     @state() private tick = 0;
@@ -124,12 +141,16 @@ export class AuroraFinlandCard extends LitElement {
         super.connectedCallback();
         this.tick++;
         this.ticker = setInterval(() => this.tick++, TICK_MS);
+        window.addEventListener("keydown", this.escape);
     }
 
     public disconnectedCallback(): void {
         super.disconnectedCallback();
         clearInterval(this.ticker);
+        window.removeEventListener("keydown", this.escape);
+        clearTimeout(this.tipTimer);
         this.stop();
+        this.cursor = undefined;
         this.resizes?.disconnect();
         cancelAnimationFrame(this.frame ?? 0);
     }
@@ -146,8 +167,7 @@ export class AuroraFinlandCard extends LitElement {
             return nothing;
         }
         const entity = this.hass.states[this.config.entity];
-        const level = entity?.state ?? "";
-        if (!entity || !(level in STATE_ICONS)) {
+        if (!entity || !(entity.state in STATE_ICONS)) {
             return html`<ha-card style=${this.cardStyle()}
                 ><div class="content"><div class="message">${this.text("common.unavailable")}</div></div></ha-card
             >`;
@@ -162,11 +182,21 @@ export class AuroraFinlandCard extends LitElement {
         return html`
             <ha-card class=${this.hass.themes?.darkMode ? "dark-theme" : ""} style=${this.cardStyle()}>
                 <div class="content">
-                    <div class="part">${this.header(level)}</div>
+                    <div class="part">${this.header()}</div>
                     ${tonight && !map ? this.boxes(sensors) : nothing}
                     ${map ? html`<div class="part">${this.map(sensors, at, window, tonight, !timeline)}</div>` : nothing}
                     ${timeline ? html`<div class="part">${this.timeline(sensors, window, now, map)}</div>` : nothing}
                 </div>
+                ${
+                    this.tip
+                        ? html`<div
+                              class="tip ${this.tip.x > this.width / 2 ? "left" : ""}"
+                              style="left: ${this.tip.x}px; top: ${this.tip.y}px"
+                          >
+                              ${this.tip.lines.map((line) => html`<div>${line}</div>`)}
+                          </div>`
+                        : nothing
+                }
             </ha-card>
         `;
     }
@@ -179,32 +209,55 @@ export class AuroraFinlandCard extends LitElement {
         }
     }
 
-    private header(level: string): TemplateResult {
+    private header(): TemplateResult {
         const entity = this.hass!.states[this.config!.entity]!;
-        const view = String(entity.attributes.view ?? "");
-        const elevation = number(entity.attributes.elevation);
-        const where =
-            view === "north" && elevation !== undefined
-                ? this.text("view.north", { elevation: String(Math.round(elevation)) })
-                : view === "overhead"
-                  ? this.text("view.overhead")
-                  : this.text("view.not_visible");
+        // Held at a moment, the visibility as it was then, where the history has it.
+        const then = this.cursor === undefined ? undefined : rowAt(this.history?.visibility ?? [], this.cursor);
+        const held = then && then.s in STATE_ICONS ? then : undefined;
+        // Held at a moment the history doesn't reach, or still loading, it says so rather than show now as then.
+        const unknown = this.cursor !== undefined && !held;
+        const level = held ? held.s : unknown ? "none" : entity.state;
+        const attributes = held ? (held.a ?? {}) : unknown ? {} : entity.attributes;
+        const view = String(attributes.view ?? "");
+        const elevation = number(attributes.elevation);
+        const where = unknown
+            ? ""
+            : view === "north" && elevation !== undefined
+              ? this.text("view.north", { elevation: String(Math.round(elevation)) })
+              : view === "overhead"
+                ? this.text("view.overhead")
+                : this.text("view.not_visible");
         const sky = shows(this.config, "show_sky");
         return html`
             <div class="header ${sky ? "with-sky" : ""}">
                 <div class="grow">
                     <div class="state">
-                        <ha-icon class="state-icon ${level}" .icon=${STATE_ICONS[level]}></ha-icon>
+                        <ha-icon class="state-icon ${level}" .icon=${STATE_ICONS[level] ?? "mdi:help-circle-outline"}></ha-icon>
                         <div class="state-text">
-                            <div class="level">${this.text(`state.${level}`)}</div>
+                            <div class="title">${this.heading()}</div>
+                            <div class="level">${unknown ? this.text("held.no_data") : this.text(`state.${level}`)}</div>
                             <div class="where">${where}</div>
                         </div>
                     </div>
-                    <div class="dark">${this.darkness()}</div>
+                    <div class="dark">
+                        ${this.cursor === undefined ? this.darkness() : this.text("held.at", { time: this.clock(this.cursor) })}
+                    </div>
                 </div>
                 ${sky ? this.sky(level, view, elevation) : nothing}
             </div>
         `;
+    }
+
+    /** What the card is about and where. */
+    private heading(): string {
+        const name = this.placeName();
+        return name ? this.text("header.title", { name }) : this.text("header.title_alone");
+    }
+
+    /** The place's name, its device's, as the integration names the device after the place. */
+    private placeName(): string | undefined {
+        const device = this.hass!.devices?.[this.hass!.entities?.[this.config!.entity]?.device_id ?? ""];
+        return device?.name_by_user || device?.name || undefined;
     }
 
     private darkness(): string {
@@ -347,9 +400,16 @@ export class AuroraFinlandCard extends LitElement {
                 .join(","),
         ).join(" ");
         const dots = sensors.stations.map((station) => this.dot(station, at, point, width > 150));
-        const drawing = html`<svg class="map" width=${width} height=${height} role="img" aria-label=${this.text("common.name")}>
+        const drawing = html`<svg
+            class="map"
+            width=${width}
+            height=${height}
+            role="img"
+            aria-label=${this.text("common.name")}
+            @pointerleave=${this.hideTip}
+        >
             <polygon class="land" points=${outline} />
-            ${dots}
+            ${dots} ${this.place(at, point, [lon0, lon1, lat0, lat1])}
         </svg>`;
         const now = Date.now();
         const controls = slider
@@ -370,18 +430,54 @@ export class AuroraFinlandCard extends LitElement {
             ${controls}`;
     }
 
+    /** The place itself among the stations, with its activity at the moment shown. Left out when it is off the map. */
+    private place(
+        at: number,
+        point: (lon: number, lat: number) => number[],
+        [lon0, lon1, lat0, lat1]: number[],
+    ): SVGTemplateResult | typeof nothing {
+        const entity = this.hass!.states[this.config!.entity]!;
+        const latitude = number(entity.attributes.latitude);
+        const longitude = number(entity.attributes.longitude);
+        if (
+            latitude === undefined ||
+            longitude === undefined ||
+            longitude < lon0 ||
+            longitude > lon1 ||
+            latitude < lat0 ||
+            latitude > lat1
+        ) {
+            return nothing;
+        }
+        const name = this.placeName() ?? String(entity.attributes.friendly_name ?? "");
+        const ratio = this.cursor === undefined ? number(entity.attributes.ratio) : valueAt(this.history?.ratio ?? [], at);
+        const tip = this.tipFor([ratio === undefined ? name : this.text("map.place", { name, percent: String(Math.round(ratio * 100)) })]);
+        const [x, y] = point(longitude, latitude);
+        return svg`<g class="place" @pointerenter=${tip} @pointerdown=${tip} @pointerleave=${this.hideTip}>
+            <circle class="place-ring" cx=${x} cy=${y} r="5" /><circle class="place-dot" cx=${x} cy=${y} r="1.6" />
+        </g>`;
+    }
+
+    private tipFor(lines: string[]): (event: PointerEvent) => void {
+        return (event) => this.showTip(event, lines);
+    }
+
     private dot(station: Station, at: number, point: (lon: number, lat: number) => number[], labelled: boolean): SVGTemplateResult {
         const series = this.history?.stations[station.entity];
         const current = number(this.hass!.states[station.entity]?.state);
         const value = this.cursor === undefined ? current : series ? valueAt(series, at) : undefined;
         const [x, y] = point(station.longitude, station.latitude);
         if (value === undefined) {
-            return svg`<circle class="dot none" cx=${x} cy=${y} r="3"><title>${station.name}</title></circle>`;
+            return svg`<circle class="dot none" cx=${x} cy=${y} r="3" @pointerenter=${this.tipFor([station.name])}
+                @pointerdown=${this.tipFor([station.name])} @pointerleave=${this.hideTip} />`;
         }
         const ratio = value / station.lower;
-        const title = this.text("map.station", { name: station.name, value: String(Math.round(value)), lower: String(station.lower) });
+        const tip = this.tipFor([
+            this.text("map.station", { name: station.name, value: String(Math.round(value)), lower: String(station.lower) }),
+        ]);
         return svg`<circle class="dot ${ratioClass(ratio)}" cx=${x} cy=${y} r=${3 + Math.min(ratio, 2) * 2.5}
-                opacity=${0.35 + Math.min(ratio, 1) * 0.55}><title>${title}</title></circle>
+                opacity=${0.35 + Math.min(ratio, 1) * 0.55} @pointerenter=${tip} @pointerdown=${tip}
+                @pointerleave=${this.hideTip} />
             ${labelled ? svg`<text class="code" x=${x + 9} y=${y + 3}>${station.name.slice(0, 3).toUpperCase()}</text>` : nothing}`;
     }
 
@@ -389,7 +485,7 @@ export class AuroraFinlandCard extends LitElement {
         const width = Math.max(120, this.width - 2 * PADDING);
         const cloudsShown = shows(this.config, "show_clouds");
         const kpShown = shows(this.config, "show_kp");
-        const height = cloudsShown || kpShown ? 110 : 70;
+        const height = cloudsShown || kpShown ? 96 : 70;
         const pad = { left: 22, right: 6, top: 8, bottom: 16 };
         const inner = { width: width - pad.left - pad.right, height: height - pad.top - pad.bottom };
         const x = (at: number) =>
@@ -414,7 +510,7 @@ export class AuroraFinlandCard extends LitElement {
                 }
                 const bar = (hour.cover / 100) * inner.height * 0.38;
                 parts.push(
-                    svg`<rect class="cloud ${hour.at + HOUR_MS <= now ? "past" : ""}" x=${x(hour.at) + 0.75} y=${bottom - bar} width=${Math.max(1, slot - 1.5)} height=${bar}><title>${this.clock(hour.at)} ${hour.cover} %</title></rect>`,
+                    svg`<rect class="cloud ${hour.at + HOUR_MS <= now ? "past" : ""}" x=${x(hour.at) + 0.75} y=${bottom - bar} width=${Math.max(1, slot - 1.5)} height=${bar} />`,
                 );
             }
         }
@@ -450,38 +546,64 @@ export class AuroraFinlandCard extends LitElement {
             parts.push(svg`<line class="now" x1=${x(now)} x2=${x(now)} y1=${pad.top} y2=${bottom} />`);
         }
         const value = this.cursor === undefined ? undefined : valueAt(points, this.cursor);
+        if (this.hovered !== undefined) {
+            parts.push(svg`<line class="hover" x1=${x(this.hovered)} x2=${x(this.hovered)} y1=${pad.top} y2=${bottom} />`);
+        }
         if (this.cursor !== undefined) {
             parts.push(svg`<line class="cursor" x1=${x(this.cursor)} x2=${x(this.cursor)} y1=${pad.top} y2=${bottom} />
                 ${value === undefined ? nothing : svg`<circle class="cursor-dot" cx=${x(this.cursor)} cy=${y(value)} r="3" />`}`);
         }
-        const right =
+        const readout =
             this.cursor !== undefined
                 ? this.text("timeline.at", {
                       time: this.clock(this.cursor),
                       percent: value === undefined ? "–" : String(Math.round(value * 100)),
                   })
                 : "";
-        const move = (event: PointerEvent) => {
-            if (this.playing) {
-                return;
-            }
+        const moment = (event: MouseEvent) => {
             const box = (event.currentTarget as SVGElement).getBoundingClientRect();
             const share = (event.clientX - box.left - pad.left) / inner.width;
-            const at = window.start + share * (window.end - window.start);
-            this.cursor = at >= now ? undefined : Math.max(window.start, at);
+            return Math.min(Math.max(window.start + share * (window.end - window.start), window.start), window.end);
         };
-        const leave = () => {
-            if (!this.playing) {
-                this.cursor = undefined;
+        const clouds = cloudsShown && sensors.clouds ? cloudHours(this.history?.clouds, this.hass!.states[sensors.clouds]) : [];
+        // A tooltip for a mouse only: a tap holds the moment instead, and a tooltip would hide it under the finger.
+        const move = (event: PointerEvent) => {
+            if (event.pointerType !== "mouse") {
+                return;
             }
+            const at = moment(event);
+            this.hovered = at;
+            const activity = at <= now ? valueAt(points, at) : undefined;
+            const cover = clouds.find((hour) => at >= hour.at && at < hour.at + HOUR_MS)?.cover;
+            this.showTip(event, [
+                this.text("tip.time", { time: this.clock(at) }),
+                ...(activity === undefined ? [] : [this.text("tip.activity", { percent: String(Math.round(activity * 100)) })]),
+                ...(cover === undefined ? [] : [this.text("tip.clouds", { percent: String(cover) })]),
+            ]);
         };
+        const leave = (event: PointerEvent) => {
+            this.hovered = undefined;
+            this.hideTip(event);
+        };
+        const hold = (event: MouseEvent) => {
+            const at = moment(event);
+            this.stop();
+            this.cursor = at >= now ? undefined : at;
+        };
+        const right = this.playing
+            ? html`${readout}${this.playButton()}`
+            : this.cursor !== undefined
+              ? html`${readout}${replay ? this.playButton() : nothing}<button class="now-chip" @click=${this.release}>
+                        ${this.text("held.now")}
+                    </button>`
+              : replay
+                ? this.playButton()
+                : nothing;
         return html`<div class="head">
                 <span>${this.text("timeline.title")}</span>
-                <span class="head-right">${right}${replay && this.cursor === undefined ? this.playButton() : nothing}</span>
+                <span class="head-right">${right}</span>
             </div>
-            <svg class="timeline" width=${width} height=${height} @pointermove=${move} @pointerleave=${leave} @pointerdown=${move}>
-                ${parts}
-            </svg>
+            <svg class="timeline" width=${width} height=${height} @pointermove=${move} @pointerleave=${leave} @click=${hold}>${parts}</svg>
             <div class="legend">
                 <span><i class="swatch activity"></i>${this.text("timeline.activity")}</span>
                 <span><i class="swatch limit"></i>${this.text("timeline.limit")}</span>
@@ -502,30 +624,61 @@ export class AuroraFinlandCard extends LitElement {
             this.stop();
             return;
         }
+        // From noon, or on from a moment held or paused at. The pace is the whole night's either way.
         const start = nightWindow(Date.now(), this.timeZone()).start;
         const step = Math.max(60_000, ((Date.now() - start) * REPLAY_FRAME_MS) / REPLAY_MS);
-        this.cursor = start;
+        this.cursor ??= start;
         this.playing = true;
         this.player = setInterval(() => {
             const next = (this.cursor ?? start) + step;
             if (next >= Date.now()) {
-                this.stop();
+                this.release();
             } else {
                 this.cursor = next;
             }
         }, REPLAY_FRAME_MS);
     }
 
+    /** Stops a replay where it is, so the card stays held at that moment. */
     private stop(): void {
         clearInterval(this.player);
         this.player = undefined;
         this.playing = false;
-        this.cursor = undefined;
     }
 
+    /** Back to now from a moment held. */
+    private readonly release = (): void => {
+        this.stop();
+        this.cursor = undefined;
+    };
+
+    private readonly escape = (event: KeyboardEvent): void => {
+        if (event.key === "Escape" && this.cursor !== undefined) {
+            this.release();
+        }
+    };
+
+    /** A tip for a mouse follows it. A tapped one stays a while, as lifting the finger counts as leaving. */
+    private showTip(event: PointerEvent, lines: string[]): void {
+        const card = this.renderRoot.querySelector("ha-card")?.getBoundingClientRect();
+        if (!card) {
+            return;
+        }
+        this.tip = { lines, x: event.clientX - card.left, y: event.clientY - card.top };
+        clearTimeout(this.tipTimer);
+        if (event.pointerType !== "mouse") {
+            this.tipTimer = setTimeout(() => (this.tip = undefined), TAP_TIP_MS);
+        }
+    }
+
+    private readonly hideTip = (event: PointerEvent): void => {
+        if (event.pointerType === "mouse") {
+            this.tip = undefined;
+        }
+    };
+
     private scrubbed(at: number, now: number): void {
-        clearInterval(this.player);
-        this.playing = false;
+        this.stop();
         this.cursor = at >= now - 5 * 60_000 ? undefined : at;
     }
 
@@ -552,7 +705,11 @@ export class AuroraFinlandCard extends LitElement {
         if (this.history?.key === key) {
             return;
         }
-        this.history = { key, ratio: [], stations: {}, nights: [], clouds: [] };
+        // A new night: a moment held in the one before is gone from the timeline.
+        if (this.history && !this.history.key.startsWith(`${window.start}|`)) {
+            this.release();
+        }
+        this.history = { key, ratio: [], stations: {}, nights: [], clouds: [], visibility: [] };
         const start = new Date(window.start).toISOString();
         const visibility = this.config.entity;
         const read = <T>(message: Record<string, unknown>) =>
@@ -582,6 +739,7 @@ export class AuroraFinlandCard extends LitElement {
                     ratio: ratioSeries(ratio[visibility], this.hass?.states[visibility]),
                     nights: nightsSeen(ratio[visibility], this.hass?.states[visibility]),
                     clouds: clouds ? (ratio[clouds] ?? []) : [],
+                    visibility: ratio[visibility] ?? [],
                     stations: Object.fromEntries(
                         stations.map((entity) => [entity, stateSeries(states[entity], this.hass?.states[entity])]),
                     ),
@@ -609,7 +767,12 @@ export class AuroraFinlandCard extends LitElement {
             }
         };
         const visibility = this.hass.states[this.config.entity];
-        add(history.ratio, number(visibility?.attributes.ratio), time(visibility?.last_updated));
+        const updated = time(visibility?.last_updated);
+        add(history.ratio, number(visibility?.attributes.ratio), updated);
+        const last = history.visibility[history.visibility.length - 1];
+        if (visibility && updated !== undefined && (!last || last.lu * 1000 < updated)) {
+            history.visibility.push({ s: visibility.state, a: visibility.attributes, lu: updated / 1000 });
+        }
         for (const [entity, points] of Object.entries(history.stations)) {
             const station = this.hass.states[entity];
             add(points, number(station?.state), time(station?.last_updated));
@@ -619,19 +782,20 @@ export class AuroraFinlandCard extends LitElement {
     /** The height the parts need at the narrowest the card gets, from its settings alone. */
     private minimumHeight(): number {
         // Each part at its tallest, measured live at every width from 288 px up with the longest texts: the header's
-        // lines wrap beside the sky on a narrow card, and the three boxes go to two rows.
+        // lines wrap beside the sky on a narrow card, the three boxes go to two rows, and the timeline's legend to two
+        // lines. The few pixels at the end are the only slack, so a part that grows shows up here.
         const gap = 12;
         const config = this.config;
-        let height = 2 * PADDING + (shows(config, "show_sky") ? 118 : 80);
+        let height = 2 * PADDING + (shows(config, "show_sky") ? 100 : 91);
         if (shows(config, "show_map")) {
             height += gap + MAP_HEIGHT + (shows(config, "show_timeline") ? 0 : 36);
         } else if (shows(config, "show_tonight")) {
             height += gap + 140;
         }
         if (shows(config, "show_timeline")) {
-            height += gap + (shows(config, "show_clouds") || shows(config, "show_kp") ? 150 : 110);
+            height += gap + (shows(config, "show_clouds") || shows(config, "show_kp") ? 151 : 116);
         }
-        return height;
+        return height + 4;
     }
 
     private measureSoon(): void {
@@ -730,9 +894,48 @@ export class AuroraFinlandCard extends LitElement {
                 --aurora-likely: var(--green-color, #4caf50);
             }
             ha-card {
+                position: relative;
                 container-type: inline-size;
                 transition: none;
                 overflow: hidden;
+            }
+            /* Above the pointer, to its right, or to its left on the card's right half so it stays inside the card. */
+            .tip {
+                position: absolute;
+                z-index: 1;
+                transform: translate(10px, calc(-100% - 10px));
+                padding: 4px 8px;
+                border-radius: 4px;
+                background: var(--card-background-color, #fff);
+                box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+                color: var(--primary-text-color);
+                font-size: 12px;
+                line-height: 1.4;
+                white-space: nowrap;
+                pointer-events: none;
+                font-variant-numeric: tabular-nums;
+            }
+            .tip.left {
+                transform: translate(calc(-100% - 10px), calc(-100% - 10px));
+            }
+            .now-chip {
+                height: 22px;
+                margin-left: 8px;
+                padding: 0 10px;
+                border: 1px solid var(--divider-color);
+                border-radius: 11px;
+                background: none;
+                color: var(--primary-color);
+                font: inherit;
+                cursor: pointer;
+            }
+            .place-ring {
+                fill: none;
+                stroke: var(--primary-text-color);
+                stroke-width: 1.5;
+            }
+            .place-dot {
+                fill: var(--primary-text-color);
             }
             .content {
                 display: flex;
@@ -772,6 +975,17 @@ export class AuroraFinlandCard extends LitElement {
             }
             .state-text {
                 min-width: 0;
+            }
+            .state-icon.none {
+                color: var(--disabled-text-color);
+            }
+            .title {
+                overflow: hidden;
+                font-size: 12px;
+                line-height: 16px;
+                color: var(--secondary-text-color);
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
             .level {
                 font-size: 19px;
@@ -997,6 +1211,10 @@ export class AuroraFinlandCard extends LitElement {
                 stroke: var(--secondary-text-color);
                 opacity: 0.5;
             }
+            .timeline .hover {
+                stroke: var(--secondary-text-color);
+                stroke-dasharray: 2 2;
+            }
             .timeline .cursor {
                 stroke: var(--state-icon-color);
                 stroke-width: 1.5;
@@ -1007,6 +1225,7 @@ export class AuroraFinlandCard extends LitElement {
             .legend {
                 display: flex;
                 flex-wrap: wrap;
+                justify-content: center;
                 gap: 2px 10px;
                 margin-top: 3px;
                 font-size: 11px;

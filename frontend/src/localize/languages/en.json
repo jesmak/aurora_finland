@@ -7,6 +7,10 @@
         "invalid_row_step": "Invalid rounding. row_step must be full or half.",
         "unavailable": "The visibility estimate is unavailable"
     },
+    "header": {
+        "title": "Aurora · {name}",
+        "title_alone": "Aurora"
+    },
     "state": {
         "unlikely": "Unlikely",
         "possible": "Possible",
@@ -50,7 +54,18 @@
         "pause": "Pause"
     },
     "map": {
-        "station": "{name}: R-index {value}, lower limit {lower}"
+        "station": "{name}: R-index {value}, lower limit {lower}",
+        "place": "{name}: activity {percent} % of the lower limit"
+    },
+    "held": {
+        "at": "As it was at {time}",
+        "now": "Now",
+        "no_data": "No data"
+    },
+    "tip": {
+        "time": "{time}",
+        "activity": "Activity {percent} % of the lower limit",
+        "clouds": "Cloud cover {percent} %"
     },
     "editor": {
         "entity": "Visibility sensor",

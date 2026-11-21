@@ -15,7 +15,7 @@ from pytest_homeassistant.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.aurora_finland.const import CONF_WEATHER, DOMAIN, KP_URL, R_INDEX_URL, RX_URL
 
-from .conftest import aurora_entry, fixture
+from .conftest import LATITUDE, LONGITUDE, aurora_entry, fixture
 
 
 def entity_id(hass: HomeAssistant, domain: str, unique_id: str) -> str:
@@ -38,6 +38,7 @@ async def test_setup(hass: HomeAssistant, feeds: AiohttpClientMocker) -> None:
     assert visibility.attributes["dark_start"].startswith("2026-01-15T15:")
     assert visibility.attributes["dark_end"].startswith("2026-01-16T05:")
     assert isinstance(visibility.attributes["next_hour"], float)
+    assert (visibility.attributes["latitude"], visibility.attributes["longitude"]) == (LATITUDE, LONGITUDE)
 
     kp = hass.states.get(entity_id(hass, "sensor", f"{entry.entry_id}_kp_tonight"))
     assert kp is not None and kp.state == "4.33"
