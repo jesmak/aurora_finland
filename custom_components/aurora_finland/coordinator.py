@@ -27,7 +27,19 @@ from .const import (
     R_INDEX_URL,
     RX_URL,
 )
-from .estimate import LIKELY, CloudsTonight, KpTonight, Visibility, clouds_tonight, is_dark, kp_tonight, night, visibility
+from .estimate import (
+    LIKELY,
+    CloudsTonight,
+    KpTonight,
+    Visibility,
+    clouds_tonight,
+    dark_hours,
+    is_dark,
+    kp_tonight,
+    next_hour,
+    night,
+    visibility,
+)
 from .feeds import Activity, FeedError, RIndex, parse_kp, parse_r_index, parse_rx
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,6 +62,10 @@ class Stations:
     activity: dict[str, Activity]
     visibility: Visibility | None
     dark: bool
+    # Tonight's dark hours, or the night going on now, by DARK_ELEVATION. None when no night comes.
+    dark_hours: tuple[datetime | None, datetime | None] | None
+    # FMI's forecast of the next hour's most activity at the place's latitude.
+    next_hour: float | None
 
 
 class StationCoordinator(DataUpdateCoordinator[Stations]):
@@ -77,14 +93,22 @@ class StationCoordinator(DataUpdateCoordinator[Stations]):
             raise UpdateFailed(str(err)) from err
 
         estimate = visibility(r_index, self.latitude, self.longitude)
-        dark = is_dark(self.latitude, self.longitude, dt_util.utcnow(), DARK_ELEVATION)
+        now = dt_util.utcnow()
+        dark = is_dark(self.latitude, self.longitude, now, DARK_ELEVATION)
         likely = dark and estimate is not None and estimate.level == LIKELY
         # The first update runs before the event listens, and leaves _was_likely set, so a restart in the middle of an
         # aurora doesn't announce it again.
         if likely and not self._was_likely and self.on_likely and estimate:
             self.on_likely(estimate)
         self._was_likely = likely
-        return Stations(r_index, activity, estimate, dark)
+        return Stations(
+            r_index,
+            activity,
+            estimate,
+            dark,
+            dark_hours(self.latitude, self.longitude, now, -DARK_ELEVATION),
+            next_hour(r_index, activity, self.latitude),
+        )
 
 
 class KpCoordinator(DataUpdateCoordinator[KpTonight | None]):

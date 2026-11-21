@@ -65,6 +65,15 @@
               "true": "Yes",
               "false": "No"
             }
+          },
+          "dark_start": {
+            "name": "Dark from"
+          },
+          "dark_end": {
+            "name": "Dark until"
+          },
+          "next_hour": {
+            "name": "Activity, next hour at most"
           }
         }
       },

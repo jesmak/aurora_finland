@@ -13,12 +13,14 @@ from custom_components.aurora_finland.estimate import (
     POSSIBLE,
     UNLIKELY,
     clouds_tonight,
+    dark_hours,
     is_dark,
     kp_tonight,
+    next_hour,
     night,
     visibility,
 )
-from custom_components.aurora_finland.feeds import RIndex, parse_kp, parse_r_index
+from custom_components.aurora_finland.feeds import Activity, RIndex, parse_kp, parse_r_index
 
 from .conftest import LATITUDE, LONGITUDE, NOW, fixture
 
@@ -125,6 +127,67 @@ def test_night_from_dusk() -> None:
 def test_no_night_at_midsummer() -> None:
     # At 61° the sun stays above -6° all night around midsummer.
     assert night(LATITUDE, LONGITUDE, datetime(2026, 6, 21, 12, tzinfo=UTC)) is None
+
+
+def forecasts(**values: float | None) -> dict[str, Activity]:
+    return {code: Activity(code, code, None, None, value) for code, value in values.items()}
+
+
+def test_next_hour_is_weighted_like_the_estimate() -> None:
+    # Nurmijärvi at 60.50° and Hankasalmi at 62.25° around the place at 61.06°: a third of the way north.
+    assert (
+        next_hour(
+            stations(),
+            forecasts(NUR=20, HAN=40),
+            LATITUDE,
+        )
+        == 26.4
+    )
+
+
+def test_next_hour_follows_the_stations_with_a_reading() -> None:
+    # Without Hankasalmi's reading the estimate weighs Mekrijärvi, so the forecast is its too.
+    # 20 + (80 − 20) × (61.06 − 60.50) / (62.77 − 60.50), to a tenth.
+    assert next_hour(stations(HAN=None), forecasts(NUR=20, HAN=40, MEK=80), LATITUDE) == 34.8
+
+
+def test_no_next_hour_without_a_forecast_for_either_station() -> None:
+    assert next_hour(stations(), forecasts(NUR=20), LATITUDE) is None
+    assert next_hour(stations(), forecasts(NUR=20, HAN=None), LATITUDE) is None
+
+
+def test_next_hour_beyond_the_outermost_station() -> None:
+    assert next_hour(stations(), forecasts(KEV=55), 70.5) == 55
+
+
+def test_dark_hours_in_the_dark_start_at_the_evening() -> None:
+    start, end = dark_hours(LATITUDE, LONGITUDE, NOW, 10) or (None, None)
+    # In mid-January the sun is 10° down at about five in the evening and seven in the morning, local time.
+    assert start is not None and datetime(2026, 1, 15, 14, tzinfo=UTC) < start < datetime(2026, 1, 15, 15, 30, tzinfo=UTC)
+    assert end is not None and datetime(2026, 1, 16, 4, 30, tzinfo=UTC) < end < datetime(2026, 1, 16, 6, tzinfo=UTC)
+
+
+def test_dark_hours_after_midnight_start_the_evening_before() -> None:
+    small_hours = datetime(2026, 1, 16, 2, tzinfo=UTC)
+    assert dark_hours(LATITUDE, LONGITUDE, small_hours, 10) == dark_hours(LATITUDE, LONGITUDE, NOW, 10)
+
+
+def test_dark_hours_before_dusk() -> None:
+    noon = datetime(2026, 1, 15, 10, tzinfo=UTC)
+    start, end = dark_hours(LATITUDE, LONGITUDE, noon, 10) or (None, None)
+    assert start is not None and end is not None
+    assert noon < start < end
+    assert start == dark_hours(LATITUDE, LONGITUDE, NOW, 10)[0]  # type: ignore[index]
+
+
+def test_no_dark_hours_at_midsummer() -> None:
+    # At 61° the sun stays above -10° all night around midsummer.
+    assert dark_hours(LATITUDE, LONGITUDE, datetime(2026, 6, 21, 12, tzinfo=UTC), 10) is None
+
+
+def test_dark_hours_in_the_polar_night() -> None:
+    # At 78° the sun stays below -10° all day around midwinter.
+    assert dark_hours(78.2, 15.6, datetime(2026, 12, 21, 12, tzinfo=UTC), 10) == (None, None)
 
 
 def test_dark() -> None:

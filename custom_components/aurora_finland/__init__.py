@@ -11,17 +11,27 @@ from collections.abc import Callable
 
 from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.typing import ConfigType
 
 from .api import Files
+from .card import async_add_card_resource, async_remove_card_resource, async_serve_card
 from .const import CONF_WEATHER, DOMAIN
 from .coordinator import AuroraConfigEntry, AuroraRuntimeData, CloudCoordinator, KpCoordinator, StationCoordinator
 
 PLATFORMS = [Platform.SENSOR, Platform.EVENT]
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    await async_serve_card(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: AuroraConfigEntry) -> bool:
+    await async_add_card_resource(hass)
     files = Files(hass)
     stations = StationCoordinator(hass, entry, files)
     kp = KpCoordinator(hass, entry, files)
@@ -62,3 +72,9 @@ async def _async_update_listener(hass: HomeAssistant, entry: AuroraConfigEntry) 
 
 async def async_unload_entry(hass: HomeAssistant, entry: AuroraConfigEntry) -> bool:
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: AuroraConfigEntry) -> None:
+    # The card stays while any place is left.
+    if not any(other.entry_id != entry.entry_id for other in hass.config_entries.async_entries(DOMAIN)):
+        await async_remove_card_resource(hass)

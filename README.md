@@ -66,6 +66,9 @@ The visibility sensor's attributes:
 - `elevation`: how high above the northern horizon the aurora is seen, in degrees, when one is seen there
 - `ratio`: the activity over the place against the lower limit of the stations around it, where 1 is the limit
 - `dark`: whether the sun is at least 10° below the horizon
+- `dark_start` and `dark_end`: the night going on now, or the next one, by that same darkness. Either is empty when
+  the sun stays that low for more than three days, and both when no such night comes, as in the summer
+- `next_hour`: the highest RX FMI expects in the next hour at the stations around the place, weighed as for `ratio`
 
 The night runs from civil dusk to dawn, or from now when it is already past dusk. The Kp sensor carries the three
 hours it is forecast for as `start` and `end`. Kp is NOAA's planetary index, the same for the whole earth, so it says
@@ -112,6 +115,52 @@ sensor are there for that.
 visibility is `likely`. It carries `view`, `elevation` and `ratio` as at that moment. It doesn't fire on the first
 update after a restart, so a restart in the middle of an aurora doesn't announce it again.
 
+## Card
+
+The integration comes with a dashboard card for one place. It shows the visibility now and where to look, with the
+parts you choose under it.
+
+- **Sky:** where to look, drawn on the sky seen from below, north at the top.
+- **Tonight:** the night's cloud cover and its clearest hour, the highest Kp and when, and the most activity FMI expects
+  in the next hour.
+- **Station map:** FMI's stations on a map of Finland, coloured by their R-index against their own lower limit. The
+  replay button plays the night from noon, so you can see how the activity moved.
+- **The night's timeline:** the activity over the place against the lower limit, from noon to eight the next morning,
+  with the dark hours shaded. Before noon it shows the night just gone. Tonight's cloud cover and Kp's peak can be
+  drawn on it too. Moving over it shows the activity at that moment, and the map's stations too when the map is on.
+
+The timeline comes from the visibility sensor's history in Home Assistant's recorder, and the map's replay from the
+stations' R-index sensors, so both fill in from the moment the integration is set up.
+
+The integration serves the card itself and adds it to the dashboards' resources when it starts, so the card is always
+the integration's own version. With the resources set in YAML (`resource_mode: yaml`), it can't add or update
+itself, and the log says which line to add, change or remove.
+
+### Card options
+
+The card has a visual editor. Add **Aurora Finland** from the card picker and choose the place's visibility sensor. The
+card finds the place's other sensors and its stations through it. The options can also be written by hand, and
+`height_mode`, `height` and `max_height` only by hand. In a sections view the layout tab sets the card's height. They
+are for where there is no layout tab, such as a masonry or panel view, or a stack or other card the card is inside,
+even in a sections view.
+
+| Name            | Type    | Description                                                                                                                                                                                                                                                                                                                | Default                                                                         |
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `type`          | string  | `custom:aurora-finland-card`                                                                                                                                                                                                                                                                                               | required                                                                        |
+| `entity`        | string  | A place's visibility sensor                                                                                                                                                                                                                                                                                                | required                                                                        |
+| `show_sky`      | boolean | Where to look, drawn on the sky                                                                                                                                                                                                                                                                                            | `true`                                                                          |
+| `show_tonight`  | boolean | Tonight's cloud cover, Kp and the next hour's activity                                                                                                                                                                                                                                                                     | `true`                                                                          |
+| `show_map`      | boolean | The station map, with the replay of the night                                                                                                                                                                                                                                                                              | `false`                                                                         |
+| `show_timeline` | boolean | The night's timeline                                                                                                                                                                                                                                                                                                       | `true`                                                                          |
+| `show_clouds`   | boolean | Tonight's cloud cover on the timeline, hour by hour                                                                                                                                                                                                                                                                        | `true`                                                                          |
+| `show_kp`       | boolean | Kp's peak on the timeline                                                                                                                                                                                                                                                                                                  | `true`                                                                          |
+| `height_mode`   | string  | How tall the card is. `auto` fits its content, `fixed` keeps it at `height`, `max` lets it grow up to `max_height`. The card is never held lower than its parts need. A height in grid rows, set in the layout tab of a sections view, is used instead                                                                     | `fixed` when `height` is set, `max` when only `max_height` is, otherwise `auto` |
+| `height`        | number  | The card's height in pixels, for `fixed`                                                                                                                                                                                                                                                                                   |                                                                                 |
+| `max_height`    | number  | The card's greatest height in pixels, for `max`                                                                                                                                                                                                                                                                            |                                                                                 |
+| `row_step`      | string  | How the card rounds its height on automatic rows in a sections view, with `height_mode` `auto` or `max`. `full` rounds it up to whole rows, so the cards under it stay on the rows. `half` rounds it up to half rows, which saves space but can leave the cards under it half a row off the rows of the sections beside it | `full`                                                                          |
+
+In a sections view the card takes a whole section, as the map and tonight's list need its width.
+
 ## Examples
 
 A notification when the aurora is likely:
@@ -119,24 +168,24 @@ A notification when the aurora is likely:
 ```yaml
 alias: Aurora likely
 triggers:
-    - trigger: state
-      entity_id: event.home_aurora
-      not_from: unavailable
+  - trigger: state
+    entity_id: event.home_aurora
+    not_from: unavailable
 conditions:
-    - condition: state
-      entity_id: event.home_aurora
-      attribute: event_type
-      state: likely
+  - condition: state
+    entity_id: event.home_aurora
+    attribute: event_type
+    state: likely
 actions:
-    - action: notify.notify
-      data:
-          title: Aurora likely
-          message: >-
-              {% if trigger.to_state.attributes.view == 'overhead' %}
-                Look up, the aurora may be overhead.
-              {% else %}
-                Look north, about {{ trigger.to_state.attributes.elevation }}° above the horizon.
-              {% endif %}
+  - action: notify.notify
+    data:
+      title: Aurora likely
+      message: >-
+        {% if trigger.to_state.attributes.view == 'overhead' %}
+          Look up, the aurora may be overhead.
+        {% else %}
+          Look north, about {{ trigger.to_state.attributes.elevation }}° above the horizon.
+        {% endif %}
 ```
 
 ## Data
@@ -148,6 +197,9 @@ The Kp forecast comes from NOAA's
 [Space Weather Prediction Center](https://www.swpc.noaa.gov/products/planetary-k-index), checked every half hour.
 
 The files are only downloaded again when they have changed. No account or key is needed.
+
+The card's map of Finland is drawn from [Natural Earth](https://www.naturalearthdata.com/)'s countries, which are in
+the public domain.
 
 This integration is unofficial and not affiliated with or endorsed by the Finnish Meteorological Institute or NOAA.
 
@@ -162,18 +214,33 @@ python3.14 -m venv .venv
 .venv/bin/ruff check .
 ```
 
-| Path                           | What it contains                                                   |
-| ------------------------------ | ------------------------------------------------------------------ |
-| `__init__.py`                  | Setup and the place's device                                       |
-| `config_flow.py`               | Adding and reconfiguring a place                                   |
-| `const.py`                     | The sources' addresses and the update intervals                    |
-| `api.py`                       | Downloading the files, only when they have changed                 |
-| `feeds.py`                     | Reading FMI's and NOAA's files                                     |
-| `estimate.py`                  | The visibility estimate, the night's dark hours, its Kp and clouds |
-| `coordinator.py`               | The three updates and the event's trigger                          |
-| `sensor.py`                    | The place's and the stations' sensors                              |
-| `event.py`                     | The event for a likely aurora                                      |
-| `translations/<language>.json` | Home Assistant UI texts                                            |
+The card is in `frontend/` and requires Node 22.13 or newer:
+
+```
+cd frontend
+npm install
+npm run check
+```
+
+`npm run check` typechecks, lints, checks formatting, runs the tests and builds
+`custom_components/aurora_finland/www/aurora-finland-card.js`, which is the file the integration serves and is
+committed to the repository. The card carries the integration's version from `manifest.json`. To have git refuse a
+commit whose built card doesn't match `frontend/`, run `git config core.hooksPath .githooks` once.
+
+| Path                           | What it contains                                                                 |
+| ------------------------------ | -------------------------------------------------------------------------------- |
+| `__init__.py`                  | Setup and the place's device                                                     |
+| `config_flow.py`               | Adding and reconfiguring a place                                                 |
+| `const.py`                     | The sources' addresses and the update intervals                                  |
+| `api.py`                       | Downloading the files, only when they have changed                               |
+| `feeds.py`                     | Reading FMI's and NOAA's files                                                   |
+| `estimate.py`                  | The visibility estimate, the next hour's forecast, the dark hours, Kp and clouds |
+| `coordinator.py`               | The three updates and the event's trigger                                        |
+| `sensor.py`                    | The place's and the stations' sensors                                            |
+| `event.py`                     | The event for a likely aurora                                                    |
+| `card.py`, `www/`              | Serving the card and adding it to the dashboards' resources                      |
+| `translations/<language>.json` | Home Assistant UI texts                                                          |
+| `frontend/`                    | The card's source, tests and build                                               |
 
 ## Support
 

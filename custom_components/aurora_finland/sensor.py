@@ -90,7 +90,16 @@ class VisibilitySensor(_Sensor):
         visibility = self.coordinator.data.visibility
         if visibility is None:
             return {}
-        return {"view": visibility.view, "elevation": visibility.elevation, "ratio": visibility.ratio, "dark": self.coordinator.data.dark}
+        start, end = self.coordinator.data.dark_hours or (None, None)
+        return {
+            "view": visibility.view,
+            "elevation": visibility.elevation,
+            "ratio": visibility.ratio,
+            "dark": self.coordinator.data.dark,
+            "dark_start": start.isoformat() if start else None,
+            "dark_end": end.isoformat() if end else None,
+            "next_hour": self.coordinator.data.next_hour,
+        }
 
 
 class KpSensor(_Sensor):
@@ -148,8 +157,8 @@ class RIndexSensor(_Sensor):
 
     @property
     def available(self) -> bool:
-        station = self.coordinator.data.r_index.get(self._code)
-        return super().available and station is not None and station.value is not None
+        # Without a reading the state is unknown, so the card still has the station's place and limit to draw.
+        return super().available and self._code in self.coordinator.data.r_index
 
     @property
     def native_value(self) -> float | None:

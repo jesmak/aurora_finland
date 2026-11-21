@@ -34,6 +34,10 @@ async def test_setup(hass: HomeAssistant, feeds: AiohttpClientMocker) -> None:
     assert visibility.state == "unlikely"
     assert visibility.attributes["view"] == "not_visible"
     assert visibility.attributes["dark"] is True
+    # The night going on at 20.12 UTC, from the evening's dusk.
+    assert visibility.attributes["dark_start"].startswith("2026-01-15T15:")
+    assert visibility.attributes["dark_end"].startswith("2026-01-16T05:")
+    assert isinstance(visibility.attributes["next_hour"], float)
 
     kp = hass.states.get(entity_id(hass, "sensor", f"{entry.entry_id}_kp_tonight"))
     assert kp is not None and kp.state == "4.33"
@@ -253,3 +257,18 @@ async def test_unchanged_file_is_reused(hass: HomeAssistant, feeds: AiohttpClien
     asked = [call for call in feeds.mock_calls if str(call[1]) == R_INDEX_URL]
     assert asked and asked[-1][3]["If-Modified-Since"] == "Thu, 15 Jan 2026 20:11:19 GMT"
     assert hass.states.get(entity_id(hass, "sensor", f"{entry.entry_id}_NUR_r_index")).state == "19.0"
+
+
+async def test_station_without_a_reading_keeps_its_place(hass: HomeAssistant, feeds: AiohttpClientMocker) -> None:
+    body = fixture("r_index.json")
+    body["data"]["KEV"]["R-index"] = None
+    feeds.clear_requests()
+    feeds.get(R_INDEX_URL, json=body)
+    feeds.get(RX_URL, json=fixture("rx.json"))
+    feeds.get(KP_URL, json=fixture("kp.json"))
+    entry = aurora_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    kevo = hass.states.get(entity_id(hass, "sensor", f"{entry.entry_id}_KEV_r_index"))
+    assert kevo is not None and kevo.state == "unknown"
+    assert kevo.attributes["latitude"] == 69.76 and kevo.attributes["lower_limit"] == 55

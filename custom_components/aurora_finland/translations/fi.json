@@ -65,6 +65,15 @@
               "true": "Kyllä",
               "false": "Ei"
             }
+          },
+          "dark_start": {
+            "name": "Pimeää alkaen"
+          },
+          "dark_end": {
+            "name": "Pimeää asti"
+          },
+          "next_hour": {
+            "name": "Aktiivisuus, seuraava tunti enintään"
           }
         }
       },

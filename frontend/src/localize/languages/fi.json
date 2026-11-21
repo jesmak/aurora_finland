@@ -1,0 +1,72 @@
+{
+    "common": {
+        "name": "Aurora Finland",
+        "description": "Revontulten näkyvyys paikassa, tämän yön pilvet ja Kp sekä yön aktiivisuus",
+        "invalid_configuration": "Valitse Aurora Finlandin näkyvyysarvio",
+        "invalid_height": "Virheellinen korkeus. Korkeuksien (height ja max_height) on oltava positiivisia lukuja pikseleinä, ja korkeustilan (height_mode) auto, fixed tai max.",
+        "invalid_row_step": "Virheellinen pyöristys. Pyöristyksen (row_step) on oltava full tai half.",
+        "unavailable": "Näkyvyysarvio ei ole saatavilla"
+    },
+    "state": {
+        "unlikely": "Epätodennäköistä",
+        "possible": "Mahdollista",
+        "likely": "Todennäköistä"
+    },
+    "view": {
+        "overhead": "Katso ylös, revontulet ovat yläpuolella",
+        "north": "Katso pohjoiseen, noin {elevation}° korkeudelle",
+        "not_visible": "Eivät näy täältä"
+    },
+    "dark": {
+        "until": "Pimeää klo {end} asti",
+        "from": "Pimeää klo {start} alkaen",
+        "now": "Pimeää",
+        "light": "Ei pimeää tänä yönä"
+    },
+    "compass": {
+        "north": "P",
+        "east": "I",
+        "south": "E",
+        "west": "L"
+    },
+    "tonight": {
+        "clouds": "Pilviä yöllä",
+        "clouds_detail": "vähiten {least} %, klo {time}",
+        "clearest": "Selkein",
+        "kp": "Kp tänä yönä",
+        "kp_detail": "klo {start}–{end}",
+        "kp_peak": "Kp suurin",
+        "next_hour": "Seuraava tunti",
+        "next_hour_detail": "aktiivisuus enintään"
+    },
+    "timeline": {
+        "title": "Aktiivisuus alarajaan verrattuna",
+        "at": "klo {time} · {percent} %",
+        "activity": "aktiivisuus / alaraja",
+        "clouds": "pilvipeite",
+        "kp": "Kp-huippu",
+        "play": "Toista yö",
+        "pause": "Pysäytä"
+    },
+    "map": {
+        "station": "{name}: R-luku {value}, alaraja {lower}"
+    },
+    "editor": {
+        "entity": "Näkyvyysarvio",
+        "entity_helper": "Paikan näkyvyysarvio, jonka kautta kortti löytää paikan muut sensorit",
+        "show_sky": "Taivas",
+        "show_sky_helper": "Mihin katsoa, piirrettynä taivaalle",
+        "show_tonight": "Tämä yö",
+        "show_tonight_helper": "Tämän yön pilvipeite ja Kp sekä seuraavan tunnin aktiivisuus",
+        "show_map": "Asemakartta",
+        "show_map_helper": "Asemat aktiivisuuden mukaan värjättyinä ja yön toisto",
+        "show_timeline": "Yön aikajana",
+        "show_timeline_helper": "Aktiivisuus keskipäivästä aamukahdeksaan",
+        "show_clouds": "Pilvet aikajanalla",
+        "show_kp": "Kp-huippu aikajanalla",
+        "row_step": "Pyöristys osioihin jaetussa näkymässä",
+        "row_step_helper": "Automaattisella rivikorkeudella kortin korkeus pyöristetään ylöspäin kokonaisiin riveihin, tai tilan säästämiseksi puolikkaisiin riveihin.",
+        "row_step_full": "Kokonaisiin riveihin",
+        "row_step_half": "Puolikkaisiin riveihin"
+    }
+}

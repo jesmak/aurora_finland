@@ -1,0 +1,72 @@
+{
+    "common": {
+        "name": "Aurora Finland",
+        "description": "The aurora's visibility at a place, tonight's clouds and Kp, and the night's activity",
+        "invalid_configuration": "Choose a visibility sensor of Aurora Finland",
+        "invalid_height": "Invalid height. height and max_height must be positive numbers of pixels, and height_mode auto, fixed or max.",
+        "invalid_row_step": "Invalid rounding. row_step must be full or half.",
+        "unavailable": "The visibility estimate is unavailable"
+    },
+    "state": {
+        "unlikely": "Unlikely",
+        "possible": "Possible",
+        "likely": "Likely"
+    },
+    "view": {
+        "overhead": "Look up, the aurora is overhead",
+        "north": "Look north, about {elevation}° up",
+        "not_visible": "Not visible from here"
+    },
+    "dark": {
+        "until": "Dark until {end}",
+        "from": "Dark from {start}",
+        "now": "Dark",
+        "light": "Not dark tonight"
+    },
+    "compass": {
+        "north": "N",
+        "east": "E",
+        "south": "S",
+        "west": "W"
+    },
+    "tonight": {
+        "clouds": "Clouds tonight",
+        "clouds_detail": "least {least} % at {time}",
+        "clearest": "Clearest",
+        "kp": "Kp tonight",
+        "kp_detail": "{start}–{end}",
+        "kp_peak": "Kp highest",
+        "next_hour": "Next hour",
+        "next_hour_detail": "activity at most"
+    },
+    "timeline": {
+        "title": "Activity against the lower limit",
+        "at": "{time} · {percent} %",
+        "activity": "activity / lower limit",
+        "clouds": "cloud cover",
+        "kp": "Kp's peak",
+        "play": "Replay the night",
+        "pause": "Pause"
+    },
+    "map": {
+        "station": "{name}: R-index {value}, lower limit {lower}"
+    },
+    "editor": {
+        "entity": "Visibility sensor",
+        "entity_helper": "The place's visibility sensor, through which the card finds its other sensors",
+        "show_sky": "Sky",
+        "show_sky_helper": "Where to look, drawn on the sky",
+        "show_tonight": "Tonight",
+        "show_tonight_helper": "Tonight's cloud cover and Kp, and the next hour's activity",
+        "show_map": "Station map",
+        "show_map_helper": "The stations coloured by activity, with a replay of the night",
+        "show_timeline": "The night's timeline",
+        "show_timeline_helper": "The activity from noon to eight in the morning",
+        "show_clouds": "Clouds on the timeline",
+        "show_kp": "Kp's peak on the timeline",
+        "row_step": "Rounding in a sections view",
+        "row_step_helper": "With automatic row height, the card's height is rounded up to whole rows, or to half rows to save space.",
+        "row_step_full": "Whole rows",
+        "row_step_half": "Half rows"
+    }
+}

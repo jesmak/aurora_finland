@@ -15,7 +15,7 @@ from astral import Observer
 from astral.sun import dawn, dusk, elevation
 from homeassistant.util.location import distance
 
-from .feeds import KpPeriod, RIndex
+from .feeds import Activity, KpPeriod, RIndex
 
 UNLIKELY = "unlikely"
 POSSIBLE = "possible"
@@ -86,10 +86,36 @@ def visibility(stations: dict[str, RIndex], latitude: float, longitude: float) -
     return Visibility(level, view, round(angle) if angle is not None else None, round(lower, 2) if lower is not None else None)
 
 
-def _over_place(readings: list[RIndex], latitude: float) -> tuple[float | None, float | None]:
-    """The activity over the place against the lower and the upper limit, from the stations around its latitude."""
+def next_hour(stations: dict[str, RIndex], activity: dict[str, Activity], latitude: float) -> float | None:
+    """FMI's forecast of the most activity in the next hour, from the RX of the stations the estimate weighs, weighted
+    the same way. None when either station has no forecast."""
+    south, north = _around([station for station in stations.values() if station.value is not None], latitude)
+    if south is None and north is None:
+        return None
+    forecasts: list[float] = []
+    for station in (south, north):
+        found = activity.get(station.code) if station else None
+        if station and (found is None or found.next_hour_max is None):
+            return None
+        if found and found.next_hour_max is not None:
+            forecasts.append(found.next_hour_max)
+    if south is None or north is None:
+        # Beyond the outermost station, it is the best there is.
+        return forecasts[0]
+    weight = (latitude - south.latitude) / (north.latitude - south.latitude)
+    return round((1 - weight) * forecasts[0] + weight * forecasts[1], 1)
+
+
+def _around(readings: list[RIndex], latitude: float) -> tuple[RIndex | None, RIndex | None]:
+    """The nearest stations with a reading south and north of the place's latitude."""
     south = max((s for s in readings if s.latitude <= latitude), key=lambda s: s.latitude, default=None)
     north = min((s for s in readings if s.latitude > latitude), key=lambda s: s.latitude, default=None)
+    return south, north
+
+
+def _over_place(readings: list[RIndex], latitude: float) -> tuple[float | None, float | None]:
+    """The activity over the place against the lower and the upper limit, from the stations around its latitude."""
+    south, north = _around(readings, latitude)
     if south is None and north is None:
         return None, None
     if south is None or north is None:
@@ -114,28 +140,38 @@ def is_dark(latitude: float, longitude: float, when: datetime, darkest: float) -
     return elevation(Observer(latitude, longitude), when) <= darkest
 
 
+def dark_hours(latitude: float, longitude: float, now: datetime, depression: float) -> tuple[datetime | None, datetime | None] | None:
+    """The night going on now, or the next one, from dusk to dawn with the sun `depression` degrees below the horizon.
+
+    A side is None when the sun stays below for more than three days. None when no night comes in that time.
+    """
+    observer = Observer(latitude, longitude)
+    if elevation(observer, now) <= -depression:
+        return _nearest(dusk, observer, now, depression, -1), _nearest(dawn, observer, now, depression, 1)
+    next_dusk = _nearest(dusk, observer, now, depression, 1)
+    if next_dusk is None:
+        return None
+    return next_dusk, _nearest(dawn, observer, next_dusk, depression, 1)
+
+
 def night(latitude: float, longitude: float, now: datetime) -> tuple[datetime, datetime] | None:
     """Tonight's dark hours, from civil dusk to dawn. When it is already dark, from now. None when no dusk comes."""
-    observer = Observer(latitude, longitude)
-    next_dawn = _next(dawn, observer, now)
-    if next_dawn is None:
+    hours = dark_hours(latitude, longitude, now, 6)
+    if hours is None or hours[1] is None:
         return None
-    if elevation(observer, now) <= -6:
-        return now, next_dawn
-    next_dusk = _next(dusk, observer, now)
-    if next_dusk is None or next_dusk >= next_dawn:
-        return None
-    return next_dusk, next_dawn
+    start, end = hours
+    return (now if start is None or start < now else start), end
 
 
-def _next(event: Any, observer: Observer, now: datetime) -> datetime | None:
-    """The next dawn or dusk after now within three days. Astral raises ValueError on a day the sun doesn't get there."""
+def _nearest(event: Any, observer: Observer, now: datetime, depression: float, direction: int) -> datetime | None:
+    """The next (direction 1) or the last (-1) dawn or dusk within three days. Astral raises ValueError on a day the sun
+    doesn't get there."""
     for days in range(3):
         try:
-            when: datetime = event(observer, (now + timedelta(days=days)).date(), tzinfo=UTC)
+            when: datetime = event(observer, (now + timedelta(days=days * direction)).date(), depression=depression, tzinfo=UTC)
         except ValueError:
             continue
-        if when > now:
+        if (when > now) if direction > 0 else (when <= now):
             return when
     return None
 
