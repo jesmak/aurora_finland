@@ -1,0 +1,186 @@
+{
+  "info": {
+    "description": "Finnish Meteorological Institute, Geomagnectic  activity nowcast. (RX,RXmin,RXmax) : (RX previous hour [time -1h, time], minimum predicted RX next hour [time, time + 1h], maximum predicted RX next hour [time ,time + 1h])",
+    "Rights": "Copyright Finnish Meteorological Institute. Licensed Under Creative Commons BY 4.0",
+    "encoding": "utf-8",
+    "issued": "2026-01-15T20:10:10+0000"
+  },
+  "data": {
+    "KEV": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 5,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 12,
+        "activity level": "low"
+      },
+      "station": "Kevo"
+    },
+    "MAS": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": null,
+        "activity level": "Null"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 13,
+        "activity level": "low"
+      },
+      "station": "Masi"
+    },
+    "KIL": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 7,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 14,
+        "activity level": "low"
+      },
+      "station": "Kilpisjärvi"
+    },
+    "IVA": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 8,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 15,
+        "activity level": "low"
+      },
+      "station": "Ivalo"
+    },
+    "MUO": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 9,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 16,
+        "activity level": "low"
+      },
+      "station": "Muonio"
+    },
+    "PEL": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 10,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 17,
+        "activity level": "low"
+      },
+      "station": "Pello"
+    },
+    "OUJ": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 11,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 18,
+        "activity level": "low"
+      },
+      "station": "Oulujärvi"
+    },
+    "MEK": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 12,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 19,
+        "activity level": "low"
+      },
+      "station": "Mekrijärvi"
+    },
+    "HAN": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 13,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 20,
+        "activity level": "low"
+      },
+      "station": "Hankasalmi"
+    },
+    "NUR": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 14,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 21,
+        "activity level": "low"
+      },
+      "station": "Nurmijärvi"
+    },
+    "TAR": {
+      "time": "2026-01-15T20:10:10+0000",
+      "RX": {
+        "value": 15,
+        "activity level": "low"
+      },
+      "RXmin": {
+        "value": 2,
+        "activity level": "low"
+      },
+      "RXmax": {
+        "value": 22,
+        "activity level": "low"
+      },
+      "station": "Tartu"
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aurora Finland",
+        "description": "Paikka, jolle revontulten näkyvyys arvioidaan, ja sääennuste tämän yön pilvisyyttä varten.",
+        "data": {
+          "name": "Nimi",
+          "location": "Sijainti",
+          "weather_entity": "Sääennuste"
+        },
+        "data_description": {
+          "name": "Paikan laitteen nimi.",
+          "location": "Revontulten näkyvyys arvioidaan tämän paikan ympärillä olevien magnetometriasemien mukaan.",
+          "weather_entity": "Sääentiteetti, jolla on tuntiennuste, tämän yön pilvisyyttä varten. Jätä tyhjäksi, jos et tarvitse sitä."
+        }
+      },
+      "reconfigure": {
+        "title": "Aurora Finland",
+        "description": "Paikka, jolle revontulten näkyvyys arvioidaan, ja sääennuste tämän yön pilvisyyttä varten.",
+        "data": {
+          "name": "Nimi",
+          "location": "Sijainti",
+          "weather_entity": "Sääennuste"
+        },
+        "data_description": {
+          "name": "Paikan laitteen nimi.",
+          "location": "Revontulten näkyvyys arvioidaan tämän paikan ympärillä olevien magnetometriasemien mukaan.",
+          "weather_entity": "Sääentiteetti, jolla on tuntiennuste, tämän yön pilvisyyttä varten. Jätä tyhjäksi, jos et tarvitse sitä."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Tämä paikka on jo lisätty.",
+      "reconfigure_successful": "Paikka muutettiin."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visibility": {
+        "name": "Revontulten näkyvyys",
+        "state": {
+          "unlikely": "Epätodennäköistä",
+          "possible": "Mahdollista",
+          "likely": "Todennäköistä"
+        },
+        "state_attributes": {
+          "view": {
+            "name": "Mihin katsoa",
+            "state": {
+              "overhead": "Yläpuolella",
+              "north": "Pohjoisessa",
+              "not_visible": "Ei näkyvissä"
+            }
+          },
+          "elevation": {
+            "name": "Korkeus pohjoisessa"
+          },
+          "ratio": {
+            "name": "Aktiivisuus alarajaan verrattuna"
+          },
+          "dark": {
+            "name": "Pimeää",
+            "state": {
+              "true": "Kyllä",
+              "false": "Ei"
+            }
+          }
+        }
+      },
+      "kp_tonight": {
+        "name": "Kp-ennuste tänä yönä",
+        "state_attributes": {
+          "start": {
+            "name": "Suurin alkaen"
+          },
+          "end": {
+            "name": "Suurin asti"
+          }
+        }
+      },
+      "clouds_tonight": {
+        "name": "Pilvipeite tänä yönä",
+        "state_attributes": {
+          "least": {
+            "name": "Vähiten"
+          },
+          "clearest": {
+            "name": "Selkein tunti"
+          },
+          "hours": {
+            "name": "Tunnit"
+          }
+        }
+      },
+      "r_index": {
+        "name": "R-luku",
+        "state_attributes": {
+          "lower_limit": {
+            "name": "Alaraja"
+          },
+          "upper_limit": {
+            "name": "Yläraja"
+          },
+          "time": {
+            "name": "Mitattu"
+          }
+        }
+      },
+      "activity": {
+        "name": "Aktiivisuus, viime tunti"
+      },
+      "activity_next_hour": {
+        "name": "Aktiivisuus, seuraava tunti enintään"
+      }
+    },
+    "event": {
+      "aurora": {
+        "name": "Revontulet",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "likely": "Todennäköisiä"
+            }
+          }
+        }
+      }
+    }
+  }
+}

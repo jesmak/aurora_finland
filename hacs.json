@@ -1,0 +1,8 @@
+{
+  "name": "Aurora Finland",
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "aurora_finland.zip",
+  "country": "FI",
+  "homeassistant": "2026.9.3"
+}

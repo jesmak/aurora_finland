@@ -1,0 +1,29 @@
+{
+  "entity": {
+    "sensor": {
+      "visibility": {
+        "default": "mdi:weather-night"
+      },
+      "kp_tonight": {
+        "default": "mdi:chart-bell-curve-cumulative"
+      },
+      "clouds_tonight": {
+        "default": "mdi:weather-night-partly-cloudy"
+      },
+      "r_index": {
+        "default": "mdi:magnet"
+      },
+      "activity": {
+        "default": "mdi:magnet"
+      },
+      "activity_next_hour": {
+        "default": "mdi:magnet"
+      }
+    },
+    "event": {
+      "aurora": {
+        "default": "mdi:weather-night"
+      }
+    }
+  }
+}

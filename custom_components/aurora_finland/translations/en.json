@@ -1,0 +1,130 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aurora Finland",
+        "description": "The place to estimate the aurora's visibility for, and a weather forecast for tonight's clouds.",
+        "data": {
+          "name": "Name",
+          "location": "Location",
+          "weather_entity": "Weather forecast"
+        },
+        "data_description": {
+          "name": "The name of the place's device.",
+          "location": "The aurora's visibility is estimated from the magnetometer stations around this place.",
+          "weather_entity": "A weather entity with an hourly forecast, for tonight's cloud cover. Leave it empty to go without."
+        }
+      },
+      "reconfigure": {
+        "title": "Aurora Finland",
+        "description": "The place to estimate the aurora's visibility for, and a weather forecast for tonight's clouds.",
+        "data": {
+          "name": "Name",
+          "location": "Location",
+          "weather_entity": "Weather forecast"
+        },
+        "data_description": {
+          "name": "The name of the place's device.",
+          "location": "The aurora's visibility is estimated from the magnetometer stations around this place.",
+          "weather_entity": "A weather entity with an hourly forecast, for tonight's cloud cover. Leave it empty to go without."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This place has already been added.",
+      "reconfigure_successful": "The place was changed."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visibility": {
+        "name": "Aurora visibility",
+        "state": {
+          "unlikely": "Unlikely",
+          "possible": "Possible",
+          "likely": "Likely"
+        },
+        "state_attributes": {
+          "view": {
+            "name": "Where to look",
+            "state": {
+              "overhead": "Overhead",
+              "north": "In the north",
+              "not_visible": "Not visible"
+            }
+          },
+          "elevation": {
+            "name": "Elevation in the north"
+          },
+          "ratio": {
+            "name": "Activity against the lower limit"
+          },
+          "dark": {
+            "name": "Dark",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          }
+        }
+      },
+      "kp_tonight": {
+        "name": "Kp tonight",
+        "state_attributes": {
+          "start": {
+            "name": "Highest from"
+          },
+          "end": {
+            "name": "Highest until"
+          }
+        }
+      },
+      "clouds_tonight": {
+        "name": "Clouds tonight",
+        "state_attributes": {
+          "least": {
+            "name": "Least"
+          },
+          "clearest": {
+            "name": "Clearest hour"
+          },
+          "hours": {
+            "name": "Hours"
+          }
+        }
+      },
+      "r_index": {
+        "name": "R-index",
+        "state_attributes": {
+          "lower_limit": {
+            "name": "Lower limit"
+          },
+          "upper_limit": {
+            "name": "Upper limit"
+          },
+          "time": {
+            "name": "Measured"
+          }
+        }
+      },
+      "activity": {
+        "name": "Activity, past hour"
+      },
+      "activity_next_hour": {
+        "name": "Activity, next hour at most"
+      }
+    },
+    "event": {
+      "aurora": {
+        "name": "Aurora",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "likely": "Likely"
+            }
+          }
+        }
+      }
+    }
+  }
+}

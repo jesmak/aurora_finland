@@ -1,0 +1,15 @@
+{
+  "domain": "aurora_finland",
+  "name": "Aurora Finland",
+  "codeowners": [
+    "@jesmak"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/jesmak/aurora_finland",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/jesmak/aurora_finland/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
