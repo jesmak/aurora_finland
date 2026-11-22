@@ -281,6 +281,8 @@
         "dark_start": "2026-01-15T14:41:12+00:00",
         "dark_end": "2026-01-16T05:21:47+00:00",
         "next_hour": 182.4,
+        "latitude": 62.89,
+        "longitude": 27.68,
         "friendly_name": "Kuopio Aurora visibility"
       }
     },
