@@ -28,9 +28,9 @@ import type { HistoryRow, Night, Point, Sensors, Station } from "./aurora";
 import "./editor";
 import { FINLAND } from "./finland";
 import type { HomeAssistant } from "./hass";
-import { gridMinRows, heightCardSize, validHeight } from "./height";
+import { gridMinRows, heightCardSize, heightStyle, validHeight } from "./height";
 import { browserLanguage, translate } from "./localize/localize";
-import { drawnScale, fillLimit, filledHeight, filledStyle, spareRoom, validRowStep } from "./rows";
+import { drawnScale, fillLimit, filledHeight, filledStyle, heldSpare, spareRoom, validRowStep } from "./rows";
 import { shows } from "./types";
 import type { AuroraCardConfig } from "./types";
 
@@ -806,7 +806,8 @@ export class AuroraFinlandCard extends LitElement {
     /**
      * In a sections view whose rows are left automatic, the card takes the whole rows its content needs, or the half rows
      * with `row_step: half`, so the cards under it stay on the rows. The room left over is split above and below the
-     * content, as the card has no title.
+     * content, as the card has no title. A card held to a height that leaves less than a row over its content splits that
+     * room the same way, and more goes under the content.
      */
     private fillRows(): void {
         const card = this.renderRoot.querySelector<HTMLElement>("ha-card");
@@ -815,7 +816,8 @@ export class AuroraFinlandCard extends LitElement {
             return;
         }
         const limit = fillLimit(this.config ?? {}, this.layout, this.minimumHeight());
-        if (!limit) {
+        const held = !limit && Boolean(heightStyle(this.config ?? {}, this.layout, this.minimumHeight()));
+        if (!limit && !held) {
             this.filled = 0;
             this.spare = 0;
             return;
@@ -833,6 +835,11 @@ export class AuroraFinlandCard extends LitElement {
             top +
             PADDING +
             px(getComputedStyle(card).borderBottomWidth);
+        if (held) {
+            this.filled = 0;
+            this.spare = heldSpare(card.getBoundingClientRect().height / scale, needed);
+            return;
+        }
         const filled = filledHeight(needed, this.config ?? {}, limit);
         this.filled = filled;
         this.spare = spareRoom(filled, needed);
@@ -840,7 +847,7 @@ export class AuroraFinlandCard extends LitElement {
 
     private cardStyle(): string {
         const style = filledStyle(this.config ?? {}, this.layout, this.minimumHeight(), this.filled);
-        return this.filled ? `${style}; --spare: ${this.spare}px` : style;
+        return this.spare ? [style, `--spare: ${this.spare}px`].filter(Boolean).join("; ") : style;
     }
 
     private timeZone(): string | undefined {

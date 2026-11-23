@@ -1019,6 +1019,10 @@ function filledHeight(content, config, limit = Infinity) {
 function spareRoom(filled, content) {
   return Math.max(0, Math.floor(filled - content + SLACK_PX));
 }
+function heldSpare(held, content) {
+  const spare = spareRoom(held, content);
+  return spare < ROW_PX ? spare : 0;
+}
 function fillLimit(config, layout, minimum = 0) {
   const rows = config.grid_options ? config.grid_options.rows : config.layout_options?.grid_rows;
   if (layout !== "grid" || typeof rows === "number") {
@@ -1918,7 +1922,8 @@ var AuroraFinlandCard = class extends i4 {
   /**
    * In a sections view whose rows are left automatic, the card takes the whole rows its content needs, or the half rows
    * with `row_step: half`, so the cards under it stay on the rows. The room left over is split above and below the
-   * content, as the card has no title.
+   * content, as the card has no title. A card held to a height that leaves less than a row over its content splits that
+   * room the same way, and more goes under the content.
    */
   fillRows() {
     const card = this.renderRoot.querySelector("ha-card");
@@ -1927,7 +1932,8 @@ var AuroraFinlandCard = class extends i4 {
       return;
     }
     const limit = fillLimit(this.config ?? {}, this.layout, this.minimumHeight());
-    if (!limit) {
+    const held = !limit && Boolean(heightStyle(this.config ?? {}, this.layout, this.minimumHeight()));
+    if (!limit && !held) {
       this.filled = 0;
       this.spare = 0;
       return;
@@ -1940,13 +1946,18 @@ var AuroraFinlandCard = class extends i4 {
     const style = getComputedStyle(content);
     const top = px(style.paddingTop) - PADDING;
     const needed = (last.getBoundingClientRect().bottom - card.getBoundingClientRect().top) / scale - top + PADDING + px(getComputedStyle(card).borderBottomWidth);
+    if (held) {
+      this.filled = 0;
+      this.spare = heldSpare(card.getBoundingClientRect().height / scale, needed);
+      return;
+    }
     const filled = filledHeight(needed, this.config ?? {}, limit);
     this.filled = filled;
     this.spare = spareRoom(filled, needed);
   }
   cardStyle() {
     const style = filledStyle(this.config ?? {}, this.layout, this.minimumHeight(), this.filled);
-    return this.filled ? `${style}; --spare: ${this.spare}px` : style;
+    return this.spare ? [style, `--spare: ${this.spare}px`].filter(Boolean).join("; ") : style;
   }
   timeZone() {
     return this.hass?.locale?.time_zone === "server" ? this.hass.config?.time_zone : void 0;
