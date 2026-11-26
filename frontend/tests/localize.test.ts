@@ -35,6 +35,8 @@ describe("languages", () => {
         expect(translate("fi", "state.unlikely")).toBe("Epätodennäköistä");
         expect(translate("xx", "state.unlikely")).toBe(translate("en", "state.unlikely"));
         expect(translate("fi-FI", "state.unlikely")).toBe("Epätodennäköistä");
+        expect(translate("fi_FI", "state.unlikely")).toBe("Epätodennäköistä");
+        expect(translate("xx-YY", "state.unlikely")).toBe(translate("en", "state.unlikely"));
         expect(translate("fi", "no.such.key")).toBe("no.such.key");
     });
 });
