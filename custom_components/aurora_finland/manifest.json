@@ -1,6 +1,7 @@
 {
   "domain": "aurora_finland",
   "name": "Aurora Finland",
+  "categories": ["weather_alerts"],
   "codeowners": [
     "@jesmak"
   ],
